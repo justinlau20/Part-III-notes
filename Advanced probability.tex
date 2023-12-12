@@ -1,0 +1,230 @@
+\documentclass[parskip=full]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsthm, amssymb, mathtools, esdiff,stmaryrd, tcolorbox, bbm,float, physics}
+\usepackage{tikz-cd}
+\usepackage{algorithm, pdfpages}
+\usepackage{bm, url, booktabs}
+\usepackage[noend]{algpseudocode}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[left=1.5cm, right=1.5cm]{geometry}
+\usepackage{lipsum}
+
+\title{Measure theory notes}
+\author{jyl20 }
+\date{February 2022}
+\newtheorem{theorem}{Theorem}[section]
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+\newtheorem*{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}[theorem]
+\newtheorem*{proposition}{Proposition}
+\newtheorem*{proofsketch}{Sketch of proof}
+\newtheorem{problem}{Problem}[section]
+\newtheorem*{solution}{Solution}
+\newtheorem*{remark}{Remark}
+\newtheorem*{example}{Example}
+\setlength{\parindent}{0pt}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newlength{\NOTskip} 
+\renewcommand{\d}[1]{\ensuremath{\operatorname{d}\!{#1}}}
+\newcommand*\interior[1]{\mathring{#1}}
+\newcommand*\closure[1]{\overline{#1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Rbar}{\overline{\R}}
+\newcommand{\lsup}{\limsup_{n \to \infty}}
+\newcommand{\linf}{\liminf_{n \to \infty}}
+\newcommand{\ceq}{\coloneqq}
+\newcommand{\limn}{\lim_{n\to \infty}}
+\newcommand{\mn}{m\geq n}
+\newcommand{\xseq}{(x_n)_{n \in \mathbb{N}}}
+\newcommand{\setseq}{(A_n)_{n \in \mathbb{N}}}
+\newcommand{\setunion}{\cup_{n \in \mathbb{N}}(A_n)}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\intm}[2][X]{\int_#1 #2 \, d \mu}
+\newcommand{\sumlim}{\sum_{n=1}^\infty}
+\newcommand{\measurablespace}{(\Omega, \mathcal{F})}
+\newcommand{\measurespace}{(\Omega, \mathcal{F}, \mu)}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\Scal}{\mathcal{S}}
+\newcommand{\Ccal}{\mathcal{C}}
+\newcommand{\Lcal}{\mathcal{L}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\Pbb}{\mathbb{P}}
+\newcommand{\Pcal}{\mathcal{P}} 
+\newcommand{\bracketsigma}{($\sigma$-)}
+\newcommand{\probabilityspace}{(\Omega,\F,\Pbb)}
+\newcommand{\1}{\mathbbm{1}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\E}{\mathbb{E}}
+\setlength{\parskip}{0.75\baselineskip plus 2pt}
+
+\lstset{
+breaklines=true,
+}
+
+\begin{document}
+Throughout, let $(\Omega, \F, \Pbb)$ be a probability space.
+\section{Conditional expectation}
+\begin{theorem}[Existence and uniqueness of conditional expectation]
+    Let $X \in L^1$, and $\mathcal{G} \subseteq \mathcal{F}$. Then there exists a random variable $Y$ such that
+    \begin{itemize}
+      \item $Y$ is $\mathcal{G}$-measurable
+      \item $Y \in L^1$, and $\E X \mathbf{1}_A = \E Y \mathbf{1}_A$ for all $A \in \mathcal{G}$.
+    \end{itemize}
+
+    Moreover, if $Y'$ is another random variable satisfying these conditions, then $Y' = Y$ almost surely.
+
+    We call $Y$ a (version of) the conditional expectation given $\mathcal{G}$.
+\end{theorem}
+
+\begin{proof}(Existence)
+
+Case 1: $X \in L^2$. 
+
+Recall that $L^2$ is a Hilbert space, and that the set of $\mathcal{G}$-measurable random variables is a closed subspace of $L^2$ (it is closed because the space $L^2(\Omega, \mathcal{G}, \Pbb)$ is complete). The projection theorem then gives us the existence and uniqueness of $Y\in L^2 \subseteq L^1$.
+
+Case 2: $X \geq 0 \in L^1$.
+
+Let $X_n = X \wedge n \in L^2$. Then by case 1, we can define $Y_n = \E(X_n \mid \mathcal{G}) \in L^2$. We make the following observation
+
+\begin{lemma}
+Suppose $(X, Y)$ and $(X', Y')$ are two pairs of random variables satisfying the conditions of the theorem, then $X \geq X'$ implies $Y \geq Y'$ almost surely.
+\end{lemma}
+
+\begin{proof}
+    Let $A = \{Y < Y'\}$. Then $\E Y \mathbf{1}_A = \E X \mathbf{1}_A \geq \E X' \mathbf{1}_A = \E Y' \mathbf{1}_A$, so $\E (Y - Y') \mathbf{1}_A \geq 0$ and $\Pbb(A) = 0$.
+\end{proof}
+
+It follows that there is some random variable $Y$ such that $Y_n \uparrow Y$. Clearly $Y$ is $\mathcal{G}$-measurable. For any $A \in \mathcal{G}$, we have
+\begin{align*}
+    \E Y \mathbf{1}_A &= \lim_{n \to \infty} \E Y_n \mathbf{1}_A &&\text{(MCV)}\\
+    &= \lim_{n \to \infty} \E X_n \mathbf{1}_A &&\text{(MCV)}\\
+    &= \E X \mathbf{1}_A
+\end{align*}
+
+Case 3: $X \in L^1$.
+
+Write $X = X^+ - X^-$, and apply case 2 to $X^+$ and $X^-$.
+
+(Uniqueness)
+Suppose $Y$ and $Y'$ are two random variables satisfying the conditions of the theorem. The $\{Y > Y'\}$ is in $\mathcal{G}$ so $\E Y \mathbf{1}_{\{Y > Y'\}} = \E Y' \mathbf{1}_{\{Y > Y'\}} \implies \E (Y - Y') \mathbf{1}_{\{Y > Y'\}} = 0 \implies \Pbb(Y > Y') = 0$. Similarly, $\Pbb(Y' > Y) = 0$.
+\end{proof}
+
+\begin{remark}
+Existence can also be proved using the Radon-Nikodym theorem.
+\end{remark}
+
+\begin{proposition}[Equivalent definition for conditional expectation]
+Let $X, \mathcal{G}$ be as above. Then there exists a random variable $Y$ such that
+\begin{itemize}
+    \item $Y$ is $\mathcal{G}$-measurable
+    \item $Y \in L^1$ and $\E X Z = \E Y Z$ for all $Z \in L^\infty(\mathcal{G})$ 
+\end{itemize}
+
+Moreover, $Y = \E(X \mid \mathcal{G})$ almost surely.
+\end{proposition}
+
+\begin{proof}
+(Existence)
+Set $Y = \E(X \mid \mathcal{G})$. It is straightforward to see that $Y$ satisfies the conditions of the proposition for simple functions $Z$. Note that simple functions that are in $L^p$ are dense in $L^p$ for $1 \leq p \leq \infty$. Let $Z_n \in L^\infty(\mathcal{G})$ be a sequence of simple functions such that $Z_n \to Z$ in $L^\infty$ (in particular, we have almost sure pointwise convergence). Then
+\begin{align*}
+    \E X Z &= \lim_{n \to \infty} \E X Z_n &&\text{(DCT)}\\
+    &= \lim_{n \to \infty} \E Y Z_n\\
+    &= \E Y Z &&\text{(DCT)}
+\end{align*}
+\end{proof}
+
+(Uniqueness) Note that any two random variables satisfying the conditions of the proposition are versions of the conditional expectation given $\mathcal{G}$, which was shown to be unique.
+
+\begin{lemma}[Conditional expectation as a function]
+Let $X, Y: (\Omega, \F) \to (\R, \B(\R))$. Then $Y$ is measurable with respect to $\sigma(X)$ if and only if there exists a Borel-measurable function $f: \R \to \R$ such that $Y(\omega) = f(X(\omega))$ for all $\omega \in \Omega$.
+\end{lemma}
+
+
+\begin{proposition}[Properties of conditional expectation]
+    All (in)equality relations below hold almost surely.
+    \begin{enumerate}
+      \item If $X \geq 0$ a.s., then $\E(X \mid \mathcal{G}) \geq 0$
+      \item If $X$ and $\mathcal{G}$ are independent, then $\E(X \mid \mathcal{G}) = \E[X]$
+      \item If $\alpha, \beta \in \R$ and $X_1, X_2 \in L^1$, then
+        \[
+          \E(\alpha X_1 + \beta X_2 \mid \mathcal{G}) = \alpha \E(X_1 \mid\mathcal{G}) + \beta \E(X_2 \mid \mathcal{G}).
+        \]
+      \item \emph{Tower property}\index{tower property}: If $\mathcal{H} \subseteq \mathcal{G}$, then
+        \[
+          \E(\E(X \mid \mathcal{G}) \mid \mathcal{H}) = \E(X \mid \mathcal{H}).
+        \]
+      \item Let $X \in L^1$ and $\mathcal{G}, \mathcal{H} \subseteq \mathcal{F}$. Assume that $\sigma(X, \mathcal{G})$ is independent of $\mathcal{H}$. Then
+        \[
+          \E (X \mid \mathcal{G}) = \E(X \mid \sigma(\mathcal{G}, \mathcal{H})).
+        \]
+    \end{enumerate}
+  \end{proposition}
+
+\begin{proof}
+    \begin{enumerate}
+        \item Follows from the proof of existence and uniqueness of conditional expectation, or just use monotonicity.
+        \item Let $A \in \mathcal{G}$. Then $\E( \E(X) \mathbf{1}_A) = \E X \E 1_A = \E (X 1_A)$
+        \item Use linearity of conditional expectation.
+        \item Let $A \in \mathcal{H}$. Then $\E\left[\E(\E(X \mid \mathcal{G}) \mid \mathcal{H}) \mathbf{1}_A \right] = \E [\E(X \mid \mathcal{G}) \mathbf{1}_A] = \E(X \mathbf{1}_A)$
+        \item 
+    \end{enumerate}
+\end{proof}
+
+\begin{proposition}[Properties of conditional expectation]
+    All (in)equality relations below hold almost surely.
+    \begin{enumerate}
+      \item \emph{Jensen's inequality}: If $c: \R \to \R$ is convex, then
+        \[
+          \E(c(X) \mid \mathcal{G}) \geq c(\E(X) \mid \mathcal{G}).
+        \]
+        \item For $p \geq 1$,
+        \[
+          \|\E(X \mid \mathcal{G})\|_p \leq \|X\|_p.
+        \]
+      \item \emph{Monotone convergence theorem} Suppose $X_n \uparrow X$ is a sequence of non-negative random variables. Then
+        \[
+          \E(X_n\mid \mathcal{G}) \uparrow \E(X \mid \mathcal{G}).
+        \]
+      \item \emph{Fatou's lemma}: If $X_n$ are non-negative measurable, then
+        \[
+          \E\left(\liminf_{n \to \infty} X_n \mid \mathcal{G}\right) \leq \liminf_{n \to \infty} \E(X_n \mid \mathcal{G}).
+        \]
+      \item \emph{Dominated convergence theorem}\index{dominated convergence theorem}: If $X_n \to X$ and $Y \in L^1$ such that $Y \geq |X_n|$ for all $n$, then
+        \[
+          \E(X_n \mid \mathcal{G}) \to \E(X \mid \mathcal{G}).
+        \]
+    \end{enumerate}
+  \end{proposition}
+
+  \begin{proof}
+    \begin{enumerate}
+        \item Note that a convex function is the supremum of countably many affine functions $c(x) = \sup_{i \in I} a_i x + b_i$. Then
+        \begin{align*}
+            \E(c(X) \mid \mathcal{G}) &= \E \left(\sup_{i \in I}\left( a_i X + b_i \right)\mid \mathcal{G} \right)\\
+            &\geq \E(a_i X + b_i \mid \mathcal{G}) \quad \forall i \in I &&\text{(monotonicity)}\\
+        \end{align*} 
+        So $\E(c(X) \mid \mathcal{G}) \geq \sup_{i \in I} \E(a_i X + b_i \mid \mathcal{G}) = c(\E(X \mid \mathcal{G}))$.
+        \item Jensen
+        \item By monotonicity, $\E(X_n \mid \mathcal{G}) \uparrow Y$ for some $Y$. By the usual monotone convergence theorem, $\E \E (X_n \mid \mathcal{G}) = \E X_n \to \E Y$ so $Y \in L^1$. Since each of the $\E (X_n \mid \mathcal{G})$ are $\mathcal{G}$-measurable, so is $Y$. Finally, for any $A \in \mathcal{G}$, 
+        \begin{align*}
+            \E Y \mathbf{1}_A &= \lim_{n \to \infty} \E \E(X_n \mid \mathcal{G}) \mathbf{1}_A &&\text{(MCV)}\\
+            &= \lim_{n \to \infty} \E X_n \mathbf{1}_A\\
+            &= \E X \mathbf{1}_A &&\text{(MCV)}
+        \end{align*}
+        \item \begin{align*}
+            \E \left (\liminf_{n \to \infty} X_n \mid \mathcal{G} \right) &= \E \left (\lim_{n \to \infty} \underbrace{\inf_{m \geq n} X_m}_{increasing} \mid \mathcal{G} \right)\\
+            &= \lim_{n \to \infty} \E \left (\inf_{m \geq n} X_m \mid \mathcal{G} \right) &&\text{(MCV)}\\
+            &= \liminf_{n \to \infty} \E \left (\underbrace{\inf_{m \geq n} X_m}_{\leq X_n} \mid \mathcal{G}\right)\\
+            &\leq \liminf_{n \to \infty}\E(X_n \mid \mathcal{G}) &&\text{(monotonicity)}
+        \end{align*}
+        \item skip
+    \end{enumerate}
+  \end{proof}
+\end{document}
