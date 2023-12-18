@@ -62,7 +62,7 @@
 \newcommand{\1}{\mathbbm{1}}
 \newcommand{\Var}{\mathrm{Var}}
 \newcommand{\E}{\mathbb{E}}
-\setlength{\parskip}{0.75\baselineskip plus 2pt}
+\setlength{\parskip}{1\baselineskip plus 2pt}
 
 \lstset{
 breaklines=true,
@@ -122,7 +122,7 @@ The above can also be proved using the Radon-Nikodym theorem.
 
 (Proof via Radon-Nikodym)
 First recall the Radon-Nikodym theorem
-\begin{proposition}
+\begin{proposition}[Radon-Nikodym theorem]
     Let $\mu, \nu$ be two $\sigma$-finite measures on $(\Omega, \mathcal{F})$ such that $\nu \ll \mu$. Then there exists a unique (up to a.e. equivalence) $f \in L^1(\Omega, \mathcal{F}, \mu)$ such that $\nu(A) = \int_A f \, d\mu$ for all $A \in \mathcal{F}$.
 \end{proposition}
 Consider the measure on $(\Omega, \mathcal{G})$ given by
@@ -224,7 +224,7 @@ Let $X, Y: (\Omega, \F) \to (\R, \B(\R))$. Then $Y$ is measurable with respect t
           \E(X_n \mid \mathcal{G}) \to \E(X \mid \mathcal{G}).
         \]
     \end{enumerate}
-  \end{proposition}
+\end{proposition}
 
   \begin{proof}
     \begin{enumerate}
@@ -250,4 +250,163 @@ Let $X, Y: (\Omega, \F) \to (\R, \B(\R))$. Then $Y$ is measurable with respect t
         \item Use Fatou's lemma on $Y + X_n$ and $Y - X_n$.
     \end{enumerate}
   \end{proof}
+
+\section{Martingales}
+\begin{definition}[(Discrete) stochastic process]
+    A \emph{stochastic process} (in discrete time) is a collection of random variables $(X_n)_{n \in \mathbb{N}}$. A stochastic process is is \emph{integrable} if $X_n \in L^1$ for all $n$.
+\end{definition}
+\begin{definition}[Filtration]
+    A \emph{filtration} is a sequence of $\sigma$-algebras $\mathcal{F}_n \subseteq \mathcal{F}$ such that $\mathcal{F}_n \subseteq \mathcal{F}_{n+1}$ for all $n$. We define $F_\infty = \sigma(\bigcup_{n=1}^\infty \mathcal{F}_n).$ The \emph{natural filtration} of a stochastic process $X$ is the filtration $\mathcal{F}_n = \sigma(X_1, \ldots, X_n)$. A stochastic process is \emph{adapted} to a filtration $\mathcal{F}_n$ if $X_n$ is $\mathcal{F}_n$-measurable for all $n$.
+\end{definition}
+
+\begin{definition}[Martingale]
+    An integrable adapted process $(X_n)_{n \geq 0}$ is a \emph{martingale} if for all $n \geq m$, we have
+    \[
+      \E(X_n \mid \mathcal{F}_m) = X_m.
+    \]
+    We say it is a \emph{super-martingale} if
+    \[
+      \E(X_n \mid \mathcal{F}_m) \leq X_m,
+    \]
+    and a \emph{sub-martingale} if
+    \[
+      \E(X_n \mid \mathcal{F}_m) \geq X_m,
+    \]
+\end{definition}
+By the tower property, it is sufficient to check the martingale property for $n = m+1$.
+
+\begin{theorem}[Doob decomposition, non-examinable]
+  Let $X_n$ be an integrable adapted process. Then there exists a martingale $M_n$ and an integrable predictable process $A_n$ such that $X_n = M_n + A_n$ and $A_0 = 0$, where predictable means that $A_n$ is $\mathcal{F}_{n-1}$-measurable for all $n \geq 1$. Moreover, $M_n$ and $A_n$ are unique up to a.s. equivalence.
+\end{theorem}
+
+\begin{proof}
+(Existence)
+Add up the `known' bits to get $A$ and the `surprises' to get $M$. Formally,
+\begin{align*}
+    A_n &= A_{n-1} + \E(X_n \mid \mathcal{F}_{n-1}) - X_{n-1}\\
+    M_n &= M_{n-1} + \underbrace{X_n - \E(X_n \mid \mathcal{F}_{n-1})}_{\text{surprise}}
+\end{align*}
+
+(Uniqueness) Let $X_n = M_n + A_n = M'_n + A'_n$. Then $M_n - M'_n = A'_n - A_n$ is $\mathcal{F}_{n-1}$-measurable. But $M_n - M'_n$ is a martingale, so $\E(M_n - M'_n \mid \mathcal{F}_{n-1}) = 0$ so $M_n = M'_n$ almost surely. Similarly, $A_n = A'_n$ almost surely.
+\end{proof}
+
+\begin{definition}[Stopping time]
+    A random variable $T: \Omega \to \mathbb{N} \cup \{\infty\}$ is a \emph{stopping time} if $\{T \leq n\} \in \mathcal{F}_n$ for all $n$.
+\end{definition}
+In the discrete case, we can equivalently require that $\{T = n\} \in \mathcal{F}_n$ for all $n$.
+\begin{definition}[$X_T$]
+    Let $X$ be a stochastic process and $T$ a stopping time. Then $X_T: \Omega \to \R$ is defined by cases
+    \[
+      X_T(\omega) = \begin{cases}
+        X_n(\omega) & T(\omega) = n\\
+        0 & T(\omega) = \infty
+      \end{cases}
+    \]
+\end{definition}
+
+\begin{definition}[Stopped $\sigma$-algebra]
+    Let $T$ be a stopping time. Then the \emph{stopped $\sigma$-algebra} is
+    \[
+      \mathcal{F}_T = \{A \in \mathcal{F}: A \cap \{T \leq n\} \in \mathcal{F}_n \text{ for all } n\}.
+    \]
+\end{definition}
+
+\begin{example}
+Let $N=\text{\# of times a random walk hits -5 before it first hits 10}$ and $T$ be the first time the random walk hits 10. $N$ is $\mathcal{F}_T$-measurable
+\end{example}
+
+\begin{definition}[Stopped process]
+    Let $X$ be a stochastic process and $T$ a stopping time. Then the \emph{stopped process} is $X^T_n = X_{T \wedge n}$
+\end{definition}
+
+\begin{proposition}
+  $ $
+  \begin{enumerate}
+    \item If $T, S, (T_n)_{n \geq 0}$ are all stopping times, then
+      \[
+        T \vee S, T \wedge S, \sup_n T_n, \inf T_n, \limsup T_n, \liminf T_n
+      \]
+      are all stopping times.
+    \item $\mathcal{F}_T$ is a $\sigma$-algebra
+    \item If $S \leq T$, then $\mathcal{F}_S \subseteq \mathcal{F}_T$.
+    \item $X_T \mathbf{1}_{T < \infty}$ is $\mathcal{F}_T$-measurable.
+    \item If $(X_n)$ is an adapted process, then so is $(X^T_n)_{n \geq 0}$ for any stopping time $T$.
+    \item If $(X_n)$ is an integrable process, then so is $(X^T_n)_{n \geq 0}$ for any stopping time $T$.
+  \end{enumerate}
+\end{proposition}
+
+\begin{proof}
+  $ $
+  \begin{enumerate}
+    \item Elementary
+    \item Elementary
+    \item Let $A \in \mathcal{F}_S$. For any $n$, we have $A \cap \{S \leq n\} \in \mathcal{F}_n$ and $A \cap \{T \leq n\} = A \cap \{S \leq n\} \cap \{T \leq n\} \in \mathcal{F}_n$.
+    \item $X_T \mathbf{1}_{T < \infty} = \sum_{n=1}^\infty X_n \mathbf{1}_{\{T = n\}}$ where each of the terms is $\mathcal{F}_T$-measurable.
+    \item $X^T_n = X_n \mathbf{1}_{\{T \geq n\}} + X_T \mathbf{1}_{\{T < n\}} \mathbf{1}_{\{T < \infty\}}$.
+    \item $X^T_n = X_n \mathbf{1}_{\{T \geq n\}} + \sum _{k=1}^{n-1} X_k \mathbf{1}_{\{T = k\}}$ so $E |X^T_n| \leq E|X_n| + \sum_{k=1}^{n-1} E|X_k| < \infty$.
+  \end{enumerate}
+\end{proof}
+
+\begin{theorem}[Equivalent definitions for super-martingales]
+  Let $(X_n)_{n \geq 0}$ be an integrable and adapted process. Then the following are equivalent:
+  \begin{enumerate}
+    \item $(X_n)_{n \geq 0}$ is a super-martingale.
+    \item For any bounded stopping times $T$ and any stopping time $S$,
+      \[
+        \E(X_T \mid \mathcal{F}_S) \leq X_{S \wedge T}.
+      \]
+    \item $(X_n^T)$ is a super-martingale for any stopping time $T$.
+    \item \label{super martingale: monotone} For bounded stopping times $S, T$ such that $S \leq T$, we have
+      \[
+        \E X_T \leq \E X_S.
+      \]
+  \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+  \begin{itemize}
+    \item[--] $(2) \Rightarrow (1)$: Let $n \geq m$ and set $T = n, S = m$. 
+    \item[--] $(2) \Rightarrow (4)$: Tower rule
+    \item[--] $(2) \Rightarrow (3)$: Let $n \geq m$
+    \[
+      \E(X_n^T \mid \mathcal{F}_m) = \E (X_{T \wedge n} \mid \mathcal{F}_m) \leq X_{T \wedge m \wedge n} = X_m^T.
+    \]
+    \item[--] $(1) \Rightarrow (2)$ Let $T \leq N$
+    \begin{align*}
+      X_T &=X_{S \wedge T} + \sum_{k = 0}^N (X_{k + 1} - X_k) \mathbf{1}_{S \leq k < T} \tag{$*$}
+    \end{align*}
+    Let $A \in \mathcal{F}_S$.
+    \begin{align*}
+      \E \left[(X_{k + 1} - X_k)\mathbf{1}_{S \leq k < T} \mathbf{1}_A \right] &= \E \left[\E \left[(X_{k + 1} - X_k)\underbrace{\mathbf{1}_{S \leq k < T}\mathbf{1}_A}_{\in \mathcal{F}_k} \mid \mathcal{F}_k \right]\right] \\
+      &= \E \left[ \mathbf{1}_{S \leq k < T} \mathbf{1}_A \underbrace{\E \left[(X_{k + 1} - X_k) \mid \mathcal{F}_k \right]}_{\leq 0}\right] \\
+      &\leq 0
+    \end{align*}
+    so $\E X_T \mathbf{1}_A \leq \E X_{S \wedge T} \mathbf{1}_A$. By Radon-Nikodym, $\E(X_{S \wedge T} - X_T \mid \mathcal{F}_S) \geq 0$. But $X_{S \wedge T}$ is $\mathcal{F}_S$-measurable, so $X_{S \wedge T} - X_T \geq 0$ almost surely.
+
+    \item[--] $(4) \Rightarrow (2)$ Let $n \geq m$ and $A \in \mathcal{F}_m$. One can check that $T = m \mathbf{1}_A + n \mathbf{1}_{A^c} \leq n$ is a stopping time such that
+    \begin{align*}
+      \E((X_n - X_m) \mathbf{1}_A) &= \E(X_n - X_T) \leq 0 \\
+    \end{align*}
+    By Radon-Nikodym, $\E(X_m - X_n \mid \mathcal{F}_m) \geq 0$ so $\E(X_n \mid \mathcal{F}_m) \leq X_m$.
+
+    \item [--] $(3) \Rightarrow (1)$ Let $T = \infty$
+  \end{itemize}
+\end{proof}
+
+\begin{theorem}[Optional stopping]
+  Let $(X_n)_{n \geq 0}$ be a martingale and $T$ a stopping time. Then $E(X_T) = E(X_0)$ if any of the following conditions hold:
+  \begin{enumerate}
+    \item $T$ is almost surely bounded, i.e. there is some $N$ such that $T \leq N$ almost surely.
+    \item $X$ has bounded increments, i.e. there is some $K$ such that $|X_{n+1} - X_n| \leq K$ for all $n$ almost surely and $T$ is integrable
+    \item There exists an integrable random variable $Y$ such that $|X_n| \leq Y$ for all $n$ almost surely and $T$ is finite almost surely, i.e. $\Pbb(T < \infty) = 1$.
+  \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+  \begin{enumerate}
+    \item Use (\ref{super martingale: monotone}) of the previous theorem with $S = 0$, or prove directly.
+    \item placeholder
+    \item placeholder
+  \end{enumerate}
+\end{proof}
 \end{document}
